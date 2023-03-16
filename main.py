@@ -1,9 +1,11 @@
 import sys
 import argparse
+import time
+import datetime
 from os.path import join
 from pandas_plink import read_plink, read_plink1_bin, get_data_folder
 
-from regression import linear_regression, logistic_regression
+from regression import run_model
 from utils.dataset import load_vcf
 from utils.postprocess import merge_col, make_genotype_by_bed
 
@@ -13,6 +15,7 @@ def get_args_parser():
     parser.add_argument('--path', type=str, default='')
     parser.add_argument('--mode', default='linear')
     parser.add_argument('--file', default='bim')
+    parser.add_argument('--nosave', default=False, action='store_true')
 
     return parser
 
@@ -22,18 +25,19 @@ def make_xy(args, df):
     train_test_df = merge_col(
         df, join(args.path, f'dataset/{args.mode}_pheno.txt'), 'y'
     )
+    return train_test_df
 
-    return train_test_df.drop(['i'], axis=1)
 
 def main(args):
     bim, fam, bed = read_plink(join(args.path, 'dataset/data')) #bim, fam, bed
-    fid = fam['fid'].tolist()
+    id = [fam['fid'].tolist(), fam['iid'].tolist()]
     snpid = bim['snp'].tolist()
 
-    # debug
-    make_genotype_by_bed(bed.compute(), fid, snpid)
 
-    if args.file == 'fam':
+    if args.file == 'bim':
+        genotype_df = make_genotype_by_bed(bed.compute(), id, snpid)
+
+    elif args.file == 'fam':
         # add sex_info
         genotype_df = merge_col(
             fam, join(args.path, 'dataset/sex_info.txt'), 'sex'
@@ -44,15 +48,14 @@ def main(args):
         )        
 
     train_test_df = make_xy(args, genotype_df)
-    # print(f"**bim file**\n{bim}\n")
-    # print(f"**fam file**\n{fam}")
 
-    if args.mode == 'linear':
-        print(linear_regression(args, train_test_df))
-    elif args.mode == 'logistic':
-        print(logistic_regression(args, train_test_df))
-    else:
-        sys.exit(0)
+    print("Fit model: in progress...")
+    start = time.time()
+    print(run_model(args, train_test_df))
+    end = time.time()
+    sec = (end - start)
+    total_time = str(datetime.timedelta(seconds=sec)).split(".")[0]
+    print(f"Fit model: Success! total time is {total_time}")
 
 
 if __name__ == '__main__':

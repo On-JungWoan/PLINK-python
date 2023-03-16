@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
  
 def merge_col(origin_df, path, col_name):
     with open(path, 'r') as f:
@@ -21,15 +22,17 @@ def merge_col(origin_df, path, col_name):
 
     return res_df
 
-def make_genotype_by_bed(bed, fid, snpid):
+def make_genotype_by_bed(bed, id, snpid):
     print("Make data frame: in progress...")
 
-    df_item = {}
+    df_item = {'fid' : id[0], 'iid': id[1]}
     for idx, snp_binary in enumerate(bed):
         if idx == 0 or idx==784255:
             continue
 
-        df_item[ snpid[idx] ] = snp_binary
+        df_item[ snpid[idx] ] = np.nan_to_num(snp_binary).astype('int')
 
-    res_df = pd.DataFrame(df_item, index=fid)
-    print()
+    res_df = pd.DataFrame(df_item)
+
+    print("Make data frame: Success!")
+    return res_df

@@ -1,6 +1,7 @@
 from statsmodels.formula.api import logit
 import statsmodels.api as sm
-import pandas as pd
+from datetime import datetime
+import pickle
 import sys
 
 #전처리함수
@@ -20,15 +21,18 @@ def pre_process(args, data):
     print(NoIdData)
     return NoIdData, x_cols, y_cols
 
-def logistic_regression(args, data):
+def run_model(args, data):
     newdata ,x_cols, y_cols = pre_process(args, data)
-    model = logit(f"{y_cols[0]}~"+"+".join(x_cols), data=newdata)
-    results = model.fit()
-    return results.summary()
-        # 다변수함수에 뉴턴방법을 적용한 로지스틱
+    model_input = f"{y_cols[0]}~"+"+".join(x_cols)
 
-def linear_regression(args, data):
-    newdata ,x_cols, y_cols = pre_process(args, data)
-    model = sm.OLS.from_formula(f"{y_cols[0]}~"+"+".join(x_cols), data=newdata)
+    if args.mode == "linear":
+        model = sm.OLS.from_formula(model_input)
+    elif args.mode == "logistic":
+        model = logit(model_input)
+
     results = model.fit()
+    if not args.nosave:
+        now = datetime.now().strftime('%H_%M_%S')
+        with open(f'{args.mode}_{now}_results.pkl', 'wb') as f:
+            pickle.dump(results, f)
     return results.summary()
