@@ -9,18 +9,14 @@ def pre_process(args, data):
     if args.mode == 'linear':
         NoIdData['y'] = NoIdData['y'].astype(float)
     elif args.mode == 'logistic':
-        NoIdData['y'] = NoIdData['y'].astype(float)
+        NoIdData = NoIdData.replace({'y' : 1}, 0)
+        NoIdData = NoIdData.replace({'y' : 2}, 1)
+        NoIdData['y'] = NoIdData['y'].astype(str)
     else:
         sys.exit(0)
-    NoIdData = NoIdData.replace({'y' : 1}, 0)
-    NoIdData = NoIdData.replace({'y' : 2}, 1)
-    NoIdData['father'] = NoIdData['father'].astype(int)
-    NoIdData['mother'] = NoIdData['mother'].astype(int)
-    NoIdData['gender'] = NoIdData['gender'].astype(int)
-    NoIdData['sex'] = NoIdData['sex'].astype(int)
-    NoIdData['trait'] = NoIdData['trait'].astype(int)
     y_cols=['y']
     x_cols=list(set(NoIdData).difference(set(y_cols)))
+    NoIdData[x_cols] = NoIdData[x_cols].astype(float)
     print(NoIdData)
     return NoIdData, x_cols, y_cols
 
