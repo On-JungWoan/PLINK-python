@@ -11,7 +11,7 @@ pip install -r requirements.txt
 
 <br>
 
-## 2. Useage
+## 2. Usage
 ### 2-1. Linear Regression
 
 ```
