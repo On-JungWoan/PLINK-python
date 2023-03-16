@@ -41,9 +41,9 @@ args | description
 
 ```
 python main.py \
-    --path your/prj/path
-    --mode linear (or logistic)
-    --file bim (or fam)
+    --path your/prj/path \
+    --mode linear (or logistic) \
+    --file bim (or fam) \
     --nosave
 ```
 
