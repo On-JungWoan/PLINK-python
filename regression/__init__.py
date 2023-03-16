@@ -26,13 +26,13 @@ def run_model(args, data):
     model_input = f"{y_cols[0]}~"+"+".join(x_cols)
 
     if args.mode == "linear":
-        model = sm.OLS.from_formula(model_input)
+        model = sm.OLS.from_formula(model_input, data=newdata)
     elif args.mode == "logistic":
-        model = logit(model_input)
+        model = logit(model_input, data=newdata)
 
     results = model.fit()
     if not args.nosave:
         now = datetime.now().strftime('%H_%M_%S')
-        with open(f'{args.mode}_{now}_results.pkl', 'wb') as f:
+        with open(f'logs/{args.mode}_{now}_results.pkl', 'wb') as f:
             pickle.dump(results, f)
     return results.summary()

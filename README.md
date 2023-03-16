@@ -23,3 +23,28 @@ python main.py --mode linear
 ```
 python main.py --mode Logistic
 ```
+
+<br>
+
+## 3. Arguments
+
+args | description
+:--: | :--:
+--path | Manually specify the project path.
+--mode | Specify the regression mode(linear or logistic).
+--file | Specify the file format to be used.(bim or fam).
+--nosave | If this argument is used, the result will not be saved.
+
+<details>
+
+<summary>Examples</summary>
+
+```
+python main.py \
+    --path your/prj/path
+    --mode linear (or logistic)
+    --file bim (or fam)
+    --nosave
+```
+
+</details>
