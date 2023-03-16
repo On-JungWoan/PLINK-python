@@ -21,16 +21,15 @@ def merge_col(origin_df, path, col_name):
 
     return res_df
 
-def make_genotype_by_bed(bed, bim):
+def make_genotype_by_bed(bed, fid, snpid):
     print("Make data frame: in progress...")
-    snp_name = bim['snp'].tolist()
 
     df_item = {}
     for idx, snp_binary in enumerate(bed):
         if idx == 0 or idx==784255:
             continue
 
-        df_item[ snp_name[idx] ] = snp_binary
+        df_item[ snpid[idx] ] = snp_binary
 
-    res_df = pd.DataFrame(df_item)
+    res_df = pd.DataFrame(df_item, index=fid)
     print()

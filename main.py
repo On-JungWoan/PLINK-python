@@ -28,9 +28,10 @@ def make_xy(args, df):
 def main(args):
     bim, fam, bed = read_plink(join(args.path, 'dataset/data')) #bim, fam, bed
     fid = fam['fid'].tolist()
+    snpid = bim['snp'].tolist()
 
     # debug
-    make_genotype_by_bed(bed.compute(), bim)
+    make_genotype_by_bed(bed.compute(), fid, snpid)
 
     if args.file == 'fam':
         # add sex_info
