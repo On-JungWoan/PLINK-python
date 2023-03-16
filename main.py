@@ -1,9 +1,11 @@
-from os.path import join
-from pandas_plink import read_plink, read_plink1_bin, get_data_folder
 import sys
 import argparse
-from utils.etc import merge_col, read_vcf
+from os.path import join
+from pandas_plink import read_plink, read_plink1_bin, get_data_folder
+
 from regression import linear_regression, logistic_regression
+from utils.dataset import load_vcf
+from utils.postprocess import merge_col, make_genotype_by_bed
 
 def get_args_parser():
     parser = argparse.ArgumentParser('Default Argument', add_help=False)
@@ -25,7 +27,10 @@ def make_xy(args, df):
 
 def main(args):
     bim, fam, bed = read_plink(join(args.path, 'dataset/data')) #bim, fam, bed
-    fam = read_vcf(join(args.path, 'dataset/data.vcf'))
+    fid = fam['fid'].tolist()
+
+    # debug
+    make_genotype_by_bed(bed.compute(), bim)
 
     if args.file == 'fam':
         # add sex_info
@@ -53,5 +58,3 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser('Arguments', parents=[get_args_parser()])
     args = parser.parse_args()
     main(args)
-
-import pickle

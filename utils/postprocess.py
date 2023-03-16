@@ -1,17 +1,5 @@
-import io
 import pandas as pd
-from os.path import join
  
-def read_vcf(path):
-    with open(path, 'r') as f:
-        lines = [l for l in f if not l.startswith('##')]
-    return pd.read_csv(
-        io.StringIO(''.join(lines)),
-        dtype={'#CHROM': str, 'POS': int, 'ID': str, 'REF': str, 'ALT': str,
-               'QUAL': str, 'FILTER': str, 'INFO': str},
-        sep='\t'
-    ).rename(columns={'#CHROM': 'CHROM'})
-
 def merge_col(origin_df, path, col_name):
     with open(path, 'r') as f:
         texts = f.readlines()
@@ -32,3 +20,17 @@ def merge_col(origin_df, path, col_name):
     ).drop(['id'], axis=1)
 
     return res_df
+
+def make_genotype_by_bed(bed, bim):
+    print("Make data frame: in progress...")
+    snp_name = bim['snp'].tolist()
+
+    df_item = {}
+    for idx, snp_binary in enumerate(bed):
+        if idx == 0 or idx==784255:
+            continue
+
+        df_item[ snp_name[idx] ] = snp_binary
+
+    res_df = pd.DataFrame(df_item)
+    print()
