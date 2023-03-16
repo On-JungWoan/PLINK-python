@@ -1,4 +1,4 @@
-# NMH 배양실험
+# SNP Regression
 ## 1. Installation
 
 ```
