@@ -1,2 +1,2 @@
-*.vcf
+__pycache__
 test*

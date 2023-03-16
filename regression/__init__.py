@@ -11,6 +11,12 @@ def pre_process(data):
 
     return x_train, y_train
 
+def linear_regression(data):
+    x_train, y_train = pre_process(data)
+    model = sm.Logit(y_train, x_train)
+    results = model.fit(method = "newton")
+    return results.summary
+
 def logistic_regression(data):
     x_train, y_train = pre_process(data)
     model = sm.Logit(y_train, x_train)
