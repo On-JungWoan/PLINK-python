@@ -25,14 +25,14 @@ def main(args):
         train_test_df = merge_col(
             genotype_df, join(args.path, f'dataset/{args.mode}_pheno.txt'), 'y'
         )
-        print(f"**bim file**\n{bim}")
+        print(f"**bim file**\n{bim}\n")
         print(f"**fam file**\n{fam}")
         # print(linear_regression(train_test_df))
     elif args.mode == 'logistic':
         train_test_df = merge_col(
             genotype_df, join(args.path, f'dataset/{args.mode}_pheno.txt'), 'y'
         )
-        print(f"**bim file**\n{bim}")
+        print(f"**bim file**\n{bim}\n")
         print(f"**fam file**\n{fam}")        
         # print(logistic_regression(train_test_df))
     else:
