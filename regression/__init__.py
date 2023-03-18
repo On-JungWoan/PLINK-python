@@ -1,6 +1,6 @@
-from statsmodels.formula.api import logit
-import statsmodels.api as sm
+from sklearn.linear_model import LinearRegression, LogisticRegression
 from datetime import datetime
+import numpy as np
 import pickle
 import sys
 
@@ -8,105 +8,64 @@ import sys
 def pre_process(args, data):
     NoIdData = data.drop(['fid','iid'], axis=1)#id가 담긴 데이터들 제거
     if args.mode == 'linear':
-        NoIdData['y'] = NoIdData['y'].astype(float)
+        NoIdData['y'] = NoIdData['y'].astype(np.float16)
     elif args.mode == 'logistic':
         NoIdData = NoIdData.replace({'y' : 1}, 0)
         NoIdData = NoIdData.replace({'y' : 2}, 1)
         NoIdData['y'] = NoIdData['y'].astype(str)
     else:
         sys.exit(0)
-    y_cols=['y']
-    x_cols=list(set(NoIdData).difference(set(y_cols)))
-    return NoIdData, x_cols, y_cols
+    return NoIdData
 
 def run_model(args, data):
-    newdata ,x_cols, y_cols = pre_process(args, data)
-    model_input = f"{y_cols[0]}~"+"+".join(x_cols)
-    print(model_input)
+    newdata = pre_process(args, data)
+#     model_input = f"{y_cols[0]}~"+"+".join(x_cols)
+    print("make model")
     if args.mode == "linear":
-        model = sm.OLS.from_formula(model_input, data=newdata)
+        model = LinearRegression()
     elif args.mode == "logistic":
-        model = logit(model_input, data=newdata)
-
-    results = model.fit()
+        model = LogisticRegression()
+    results = model.fit(newdata.drop('y', axis=1),newdata['y'])
     if not args.nosave:
         now = datetime.now().strftime('%H_%M_%S')
         with open(f'logs/{args.mode}_{now}_results.pkl', 'wb') as f:
             pickle.dump(results, f)
-    return results.summary()
+    return results
 
 
-
-# import pandas as pd
-# import numpy as np
-# import torch
-# import torch.nn as nn
-# import torch.optim as optim
-# from datetime import datetime
-# import pickle
-# import sys
-
-# #pytorch로 선형, 로지스틱 회귀분석 torch pip
-# class LinearRegression(nn.Module):
-#     def __init__(self, input_size, output_size): 
-#         super(LinearRegression, self).__init__()
-#         self.linear = nn.Linear(input_size, output_size)
-
-#     def forward(self, x):
-#         out = self.linear(x)
-#         return out
-
-# class LogisticRegression(nn.Module):
-#     def __init__(self, input_size, output_size):
-#         super(LogisticRegression, self).__init__() 
-#         self.linear = nn.Linear(input_size, output_size)
-#         self.sigmoid = nn.Sigmoid()
-#     def forward(self, x):
-#         return self.sigmoid(self.linear(x))
+def get_statistics(model, intercept=0, coef=[], train_df=None, target_df=None):
+    print("Coefficient :", coef)
+    print("Intercept :", intercept)
     
-# def pre_process(args, data):
-#     NoIdData = data.drop(['fid','iid'], axis=1)#id가 담긴 데이터들 제거
-#     NoIdData = NoIdData.head()
-#     if args.mode == 'linear':
-#         NoIdData['y'] = NoIdData['y'].astype(np.float16)
-#     elif args.mode == 'logistic':
-#         NoIdData = NoIdData.replace({'y':1}, 0)
-#         NoIdData = NoIdData.replace({'y':2}, 1)
-#         NoIdData['y'] = NoIdData['y'].astype(np.int8)
-#     else:
-#         sys.exit(0)
-#     return NoIdData
+    params = np.append(intercept, coef)
+    print("Params:", params)
 
-# def run_model(args, data):
-#     newdata = pre_process(args, data)
-#     train_features = torch.FloatTensor(newdata.drop('y', axis=1).values)
-#     train_target = torch.FloatTensor(newdata['y'].values)
-#     if args.mode == "logistic":
-#         model = LogisticRegression(train_features.shape[1], 1)
-#         criterion = nn.CrossEntropyLoss()
+    #prediction = model.predict(train_df.values.reshape(-1, 1))        # 단변량
+    prediction = model.predict(train_df.values)                     # 다변량
 
-#     elif args.mode == "linear":
-#         model = LinearRegression(train_features.shape[1],1)
-#         criterion = nn.MSELoss()
-#     # 최적화 알고리즘 정의
-#     optimizer = optim.SGD(model.parameters(), lr=0.01)
-#     # 학습 반복문
-#     num_epochs = 1000
-#     for epoch in range(num_epochs):
-#     # 예측값 계산
-#         train_pred = model(train_features)
-#     # 손실 계산
-#         train_loss = criterion(train_pred.squeeze(), train_target)
-#     # 역전파 및 가중치 갱신
-#         optimizer.zero_grad()
-#         train_loss.backward()
-#         optimizer.step()
-#     # 로그 출력
-#     if(epoch+1) % 100== 0:
-#         print('Epoch [{}/{}], Loss: {:.4f}'.format(epoch+1, num_epochs, train_loss.item()))
+    if len(prediction.shape) == 1:
+        prediction = np.expand_dims(prediction, axis=1)
+    print(train_df.columns)
 
-#     if not args.nosave:
-#         now = datetime.now().strftime('%H_%M_%S')
-#     with open(f'logs/{args.mode}_{now}_results.pkl', 'wb') as f:
-#         pickle.dump(train_pred, f)
-#     return train_pred
+    new_trainset = pd.DataFrame({"Constant": np.ones(len(train_df.values))},dtype='float16').join(pd.DataFrame(train_df.values))
+    print(new_trainset)
+    
+    from sklearn.metrics import mean_squared_error
+    MSE = mean_squared_error(prediction, target_df.values)
+    print("MSE :", MSE)
+    new_trainset = new_trainset.astype('float16')
+    variance = MSE * (np.linalg.inv(np.dot(new_trainset.T, new_trainset)).diagonal())       # MSE = (1, ) & else = (n, ) 가 나와야 함.
+
+    std_error = np.sqrt(variance)
+    t_values = params / std_error
+    p_values = [2 * (1 - stats.t.cdf(np.abs(i), (len(new_trainset) - len(new_trainset.columns) - 1))) for i in t_values]
+
+    std_error = np.round(std_error, 3)
+    t_values = np.round(t_values, 3)
+    p_values = np.round(p_values, 3)
+    params = np.round(params, 4)
+
+    statistics = pd.DataFrame()
+    statistics["Coefficients"], statistics["Standard Errors"], statistics["t -values"], statistics["p-values"] = [params, std_error, t_values, p_values]
+
+    return statistics
