@@ -33,7 +33,6 @@ def main(args):
     id = [fam['fid'].tolist(), fam['iid'].tolist()]
     snpid = bim['snp'].tolist()
 
-
     if args.file == 'bim':
         genotype_df = make_genotype_by_bed(bed.compute(), id, snpid)
 
