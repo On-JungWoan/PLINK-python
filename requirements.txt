@@ -114,3 +114,5 @@ wrapt==1.15.0
 xarray==2023.2.0
 zipp==3.15.0
 zstandard==0.20.0
+#우석추가
+matplotlib
