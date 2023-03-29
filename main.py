@@ -2,6 +2,8 @@ import argparse
 from os.path import join
 from pandas_plink import read_plink, read_plink1_bin, get_data_folder
 from tqdm import tqdm
+import matplotlib.pyplot as plt
+import pickle
 
 from regression import run_model
 # from utils.dataset import load_vcf
@@ -42,14 +44,20 @@ def main(args):
         genotype_df = make_genotype_by_bed(args, bed.compute(), id, snpid, num)     
         train_test_df = make_xy(args, genotype_df)    
     
-        error = run_model(args, train_test_df)
+        error = run_model(args, train_test_df, num)
         res[num] = error
         # end = time.time()
         # sec = (end - start)
         # total_time = str(datetime.timedelta(seconds=sec)).split(".")[0]
         # print(f"Fit model: Success! total time is {total_time}")
         
-    print()
+    
+    with open('logs/res.pkl', 'wb') as f:
+        pickle.dump(res,f)
+    
+
+        
+    
 
 
 if __name__ == '__main__':

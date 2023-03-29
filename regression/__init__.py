@@ -41,7 +41,7 @@ def pre_process(args, df):
     
     return x_train, x_val, y_train, y_val, params
 
-def run_model(args, df):
+def run_model(args, df, num):
     x_train, x_val, y_train, y_val, params = pre_process(args, df)
     
     # train
@@ -52,7 +52,7 @@ def run_model(args, df):
     
     # save model
     print('Starting training...')
-    gbm.save_model(f'{args.save_dir}/{args.mode}_model.txt')
+    gbm.save_model(f'{args.save_dir}/{args.mode}_model_{num}.txt')
 
     # predict
     print('Starting predicting...')
