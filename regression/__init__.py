@@ -1,71 +1,65 @@
-from sklearn.linear_model import LinearRegression, LogisticRegression
-from datetime import datetime
-import pandas as pd
-import numpy as np
-import pickle
+import os
+os.environ['CUDA_VISIBLE_DEVICES'] = '4'
+
 import sys
-from utils.decorators import logging_time
-from scipy import stats
 
-#전처리함수
-def pre_process(args, data):
-    NoIdData = data.drop(['fid','iid'], axis=1)#id가 담긴 데이터들 제거
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_absolute_error
+import lightgbm as lgbm
+from regression.config import LGBM_01, Catboost_01
+
+DEL_LIST = ['__name__', '__doc__', '__package__', '__loader__', '__spec__', '__file__', '__cached__', '__builtins__']
+
+def pre_process(args, df):
     if args.mode == 'linear':
-        NoIdData['y'] = NoIdData['y'].astype(np.float16)
+        config = LGBM_01
     elif args.mode == 'logistic':
-        NoIdData = NoIdData.replace({'y' : 1}, 0)
-        NoIdData = NoIdData.replace({'y' : 2}, 1)
-        NoIdData['y'] = NoIdData['y'].astype(str)
+        config = Catboost_01
     else:
-        sys.exit(0)
-    return NoIdData
+        sys.exit(1)
 
-@logging_time
-def run_model(args, data):
-    newdata = pre_process(args, data)
-#     model_input = f"{y_cols[0]}~"+"+".join(x_cols)
-    print("Modeling start..")
-    if args.mode == "linear":
-        model = LinearRegression()
-    elif args.mode == "logistic":
-        model = LogisticRegression()
-    results = model.fit(newdata.drop('y', axis=1),newdata['y'])
+    # param
+    for col in DEL_LIST:
+        try:
+            del config.__dict__[col]
+        except:
+            pass
+    params = config.__dict__
+    
+    # df pre-process
+    df = df.drop(['fid', 'iid'], axis=1)
+    X_data = df.drop(['y'], axis=1)
+    y_data = df['y'].astype('float')
+    
+    # train/val split
+    if args.mode == 'linear':
+        x_train, x_val, y_train, y_val = train_test_split(X_data, y_data, test_size=0.2, shuffle=True, random_state=34)
+    elif args.mode == 'logistic':
+        x_train, x_val, y_train, y_val = train_test_split(X_data, y_data, test_size=0.2, shuffle=True, stratify=y_data, random_state=34)
+    else:
+        sys.exit(1)
+    
+    return x_train, x_val, y_train, y_val, params
 
-    print("Get statistics..")
-    get_statistics(results, newdata.drop('y', axis=1), newdata['y'])
-    if not args.nosave:
-        now = datetime.now().strftime('%H_%M_%S')
-        with open(f'logs/{args.mode}_{now}_results.pkl', 'wb') as f:
-            pickle.dump(results, f)
-    return results
+def run_model(args, df):
+    x_train, x_val, y_train, y_val, params = pre_process(args, df)
+    
+    # train
+    print('Starting training...')
+    lgbm_train = lgbm.Dataset(x_train, y_train)
+    lgbm_eval = lgbm.Dataset(x_val, y_val, reference=lgbm_train)
+    gbm = lgbm.train(params, lgbm_train, num_boost_round=20, valid_sets=lgbm_eval, callbacks=[lgbm.early_stopping(stopping_rounds=5)])
+    
+    # save model
+    print('Starting training...')
+    gbm.save_model(f'{args.save_dir}/{args.mode}_model.txt')
 
-@logging_time
-def get_statistics(model, x, y):
-    params = np.append(model.intercept_,model.coef_)
-    predictions = model.predict(x)
-    newX = pd.DataFrame({"Constant":np.ones(len(x))}).join(pd.DataFrame(x))
-    MSE = (sum((y-predictions)**2))/(len(newX)-len(newX.columns))
-    print(newX)
+    # predict
+    print('Starting predicting...')
+    y_pred = gbm.predict(x_val, num_iteration=gbm.best_iteration)
 
-    # 나눌 부분행렬의 개수 지정
-    num_splits = 7195
-    # array_split 함수를 이용하여 부분행렬 생성 후, 각 부분행렬에서 표준편차 계산
-    stds = []
-    for sub_arr in np.array_split(newX, num_splits, axis=1):
-        stds.append(np.std(sub_arr, axis=0))
-
-    # 계산된 표준편차들을 다시 병합
-    stds = np.concatenate(stds)
-    std_error = stds / np.sqrt(newX.shape[0])
-    t_values = params / std_error
-    p_values = [2 * (1 - stats.t.cdf(np.abs(i), (len(newX) - len(newX.columns) - 1))) for i in t_values]
-
-    std_error = np.round(std_error, 3)
-    t_values = np.round(t_values, 3)
-    p_values = np.round(p_values, 3)
-    params = np.round(params, 4)
-
-    statistics = pd.DataFrame()
-    statistics["Coefficients"], statistics["Standard Errors"], statistics["t -values"], statistics["p-values"] = [params, std_error, t_values, p_values]
-    print(statistics)
-    return statistics
+    # eval
+    error = mean_absolute_error(y_val, y_pred)
+    print(f'The MAE of prediction is: {error}')
+    
+    return error

@@ -1,12 +1,10 @@
-import sys
 import argparse
-import time
-import datetime
 from os.path import join
 from pandas_plink import read_plink, read_plink1_bin, get_data_folder
+from tqdm import tqdm
 
 from regression import run_model
-from utils.dataset import load_vcf
+# from utils.dataset import load_vcf
 from utils.postprocess import merge_col, make_genotype_by_bed
 
 def get_args_parser():
@@ -16,6 +14,9 @@ def get_args_parser():
     parser.add_argument('--mode', default='linear')
     parser.add_argument('--file', default='bim')
     parser.add_argument('--nosave', default=False, action='store_true')
+    parser.add_argument('--save_dir', default='logs')
+
+    parser.add_argument('--num_col', default=[15, 30, 45, 100, 150], nargs='+')
 
     return parser
 
@@ -33,28 +34,22 @@ def main(args):
     id = [fam['fid'].tolist(), fam['iid'].tolist()]
     snpid = bim['snp'].tolist()
 
-    if args.file == 'bim':
-        genotype_df = make_genotype_by_bed(bed.compute(), id, snpid)
-
-    elif args.file == 'fam':
-        # add sex_info
-        genotype_df = merge_col(
-            fam, join(args.path, 'dataset/sex_info.txt'), 'sex'
-        )
-        # add covar
-        genotype_df = merge_col(
-            genotype_df, join(args.path, f'dataset/covar.txt'), 'cov'
-        )        
-
-    train_test_df = make_xy(args, genotype_df)
-
     print("Fit model: in progress...")
-    start = time.time()
-    print(run_model(args, train_test_df))
-    end = time.time()
-    sec = (end - start)
-    total_time = str(datetime.timedelta(seconds=sec)).split(".")[0]
-    print(f"Fit model: Success! total time is {total_time}")
+    # start = time.time()
+    
+    res = {}
+    for num in tqdm(args.num_col):
+        genotype_df = make_genotype_by_bed(args, bed.compute(), id, snpid, num)     
+        train_test_df = make_xy(args, genotype_df)    
+    
+        error = run_model(args, train_test_df)
+        res[num] = error
+        # end = time.time()
+        # sec = (end - start)
+        # total_time = str(datetime.timedelta(seconds=sec)).split(".")[0]
+        # print(f"Fit model: Success! total time is {total_time}")
+        
+    print()
 
 
 if __name__ == '__main__':

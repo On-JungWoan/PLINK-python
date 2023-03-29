@@ -1,32 +1,26 @@
 import pandas as pd
-from datetime import datetime
-
-from scipy.stats import uniform
-from scipy.stats import randint
 import numpy as np
 import matplotlib.pyplot as plt
 
 # plink 실행 시 결과로 출력된 result.txt파일을 csv형식으로 변환
 #결과파일 linear_result_manhattan.txt, logistic_result_manhattan.txt
-def txt_csv(result):
+def txt_csv(result, num):
     with open(result, 'r') as f:
         lines = f.readlines()
     # 각 행을 데이터프레임의 열로 변환
     data = pd.DataFrame([line.strip().split() for line in lines])
-    select_feature(data)
-    return 
+    result = select_feature(data, num)
+    return result
 
 #pvalue를 기반으로 독립변수 개수를 5, 10, 20, 30 으로 축소
-def select_feature(df):
+def select_feature(df, num):
     # input : plink 결과 데이터 output: 선택된 변수set
     # 데이터프레임 출력
-    df.columns = ["CHR","POS","SNP",'ALT',"STAT","P"]
+    df.columns = ["CHR","POS","SNP","ALT","STAT","P"]
     df=df.drop(df[df['P'] == "NA"].index,axis = 0)
     manhattan(df)
-    feature5 = df.sort_values("P",ascending = False).iloc[0:5,:]['SNP']
-    feature10 = df.sort_values("P",ascending = False).iloc[0:10,:]['SNP']
-    feature20 = df.sort_values("P",ascending = False).iloc[0:20,:]['SNP']
-    feature30 = df.sort_values("P",ascending = False).iloc[0:30,:]['SNP']
+    train_feature = df.sort_values("P",ascending = True).iloc[0:num,:]['SNP']
+    return list(train_feature)
 
 #결과를 기반으로 맨해튼플롯 작성
 def manhattan(df):
@@ -61,4 +55,3 @@ def manhattan(df):
     ax.set_xlabel('CHR')
 
     # show the graph
-    plt.show()
