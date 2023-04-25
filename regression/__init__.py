@@ -77,31 +77,27 @@ def createPvalue(df):
     import statsmodels.api as sm
     import pandas as pd
     import numpy as np
-    count = 0
     df = df.drop(['fid', 'iid'], axis=1)
 
     #covar 파일 호출
     covars = pd.read_csv('dataset/covar.txt',delimiter = "\t",header = None)[[2,3]]    
     df['sex'] = covars[2]
     df['covar'] = covars[3]
-    df['constraint'] = [1]*100
-    y_data = df['y'].astype('float')
-    print(df)
-    
-    #resId: 유전형 데이터 이름, resValue: 유전형 데이터 p-value
-    resId = list(df.columns[0:-4])
-    resValue = []
+    df['constraint'] = [1]*100 
 
     #ADD + cov1 + cov2에 대해 회귀분석
-    for i in resId:
+    def run_regression(row, df, y_data):
+        i = row.name
         X_data = df[['constraint', i, 'sex', 'covar']]
         model2 = sm.OLS(y_data, X_data)
         result2 = model2.fit()
-        #pvalue가 'constraint', i, 'sex', 'covar'에 대해 모두 출력되기 때문에 i에 해당하는 부분만 리스트에 저장
-        resValue.append(result2.pvalues[i])
-        count += 1
-        if count % 10000 == 0:
-            print(count)
+        return result2.pvalues[i]
+    # convert 'y' column to float
+    y_data = df['y'].astype('float')
+    # get list of resId
+    resId = list(df.columns[0:-4])
+    # apply regression to each row of the resId columns
+    resValue = df[resId].apply(run_regression, df=df, y_data=y_data, axis=0)
 
     #Comparison with plink data'
     plink_result = pd.read_csv(f'dataset/linear_result_manhattan.txt',delimiter = "\t",header = None)    
