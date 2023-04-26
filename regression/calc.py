@@ -5,10 +5,10 @@ import pickle
 import sys
 
 #ADD + cov1 + cov2에 대해 회귀분석
-def run_regression(model, row, df, y_data):
-    df = df.dropna()
+def run_regression(model, row, df):
+    df = df[['constant', row, 'sex', 'covar', 'y']].dropna()
     X_data = df[['constant', row, 'sex', 'covar']]
-    y_data = df['y'].astype('float')
+    y_data = df['y']
     if df.shape[0] == 0:
         return "NA"
     else:
@@ -47,20 +47,20 @@ def createPvalue(args, df):
     # calc p-value
     out = []
     if args.mode == 'linear':
-        y_data = df['y'].astype('float')
+        df['y'] = df['y'].astype('float')
         for id in resId:
             out.append(
-                run_regression(sm.OLS, id, df, y_data)
+                run_regression(sm.OLS, id, df)
             )
             
     elif args.mode == 'logistic':
-        y_data = df['y'].astype('uint')
-        y_data[y_data==1] = 0
-        y_data[y_data==2] = 1
+        df['y'] = df['y'].astype('uint')
+        df['y'][df['y']==1] = 0
+        df['y'][df['y']==2] = 1
 
         for id in resId:
             out.append(
-                run_regression(sm.Logit, id, df, y_data)
+                run_regression(sm.Logit, id, df)
             )
     else:
         sys.exit(1)
