@@ -1,0 +1,31 @@
+PLINK v1.90b6.27 64-bit (10 Dec 2022)
+Options in effect:
+  --bfile data
+  --geno 0.05
+  --hwe 0.000001
+  --maf 0.01
+  --make-bed
+  --out data_snpqc
+
+Hostname: DESKTOP-3GO7G9K
+Working directory: /mnt/c/Users/WOOO_SEOK/Desktop/snp/dataset
+Start time: Wed Apr 26 20:24:44 2023
+
+Random number seed: 1682508284
+12300 MB RAM detected; reserving 6150 MB for main workspace.
+784256 variants loaded from .bim file.
+100 people (0 males, 0 females, 100 ambiguous) loaded from .fam.
+Ambiguous sex IDs written to data_snpqc.nosex .
+Using 1 thread (no multithreaded calculations invoked).
+Before main variant filters, 100 founders and 0 nonfounders present.
+Calculating allele frequencies... done.
+Total genotyping rate is 0.972023.
+29514 variants removed due to missing genotype data (--geno).
+--hwe: 0 variants removed due to Hardy-Weinberg exact test.
+131474 variants removed due to minor allele threshold(s)
+(--maf/--max-maf/--mac/--max-mac).
+623268 variants and 100 people pass filters and QC.
+Note: No phenotypes present.
+--make-bed to data_snpqc.bed + data_snpqc.bim + data_snpqc.fam ... done.
+
+End time: Wed Apr 26 20:24:47 2023
