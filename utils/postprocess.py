@@ -33,19 +33,18 @@ def make_genotype_by_bed(args, bed, id, snpid, num_col):
         col = snpid
     else:
         featureColumn = resultStatistics.txt_csv(f'dataset/{args.mode}_result_manhattan.txt', num_col)
-        inter_col = set(snpid).intersection(set(featureColumn))
         
         col_idx = []
         col = []
-        for i_col in tqdm(inter_col):
+        for i_col in tqdm(featureColumn):
             tmp = snpid.index(i_col)
             col_idx.append(tmp)
-            col.append(snpid[tmp])
+            col.append(i_col)
         target = bed[col_idx]
 
     df_item = {'fid' : id[0], 'iid': id[1]}
     for idx, snp_binary in enumerate(tqdm(target)):
-        df_item[ col[idx] ] = np.nan_to_num(snp_binary).astype('int')    
+        df_item[ col[idx] ] = np.nan_to_num(snp_binary).astype('int')
 
     res_df = pd.DataFrame(df_item)
     print("\nMake data frame: Success!\n")

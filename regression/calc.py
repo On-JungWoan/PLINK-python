@@ -77,11 +77,5 @@ def createPvalue(args, df):
     print()
     # print(['_' if b else idx for idx, b in enumerate(res)][:50]) # debug
 
-
     # with open('logs/res.pkl', 'wb') as f:
     #     pickle.dump(res,f)
-
-import pickle
-
-with open('not_matched_snp.pkl', 'rb') as f:
-    snp = pickle.load(f)

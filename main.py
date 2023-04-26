@@ -13,7 +13,7 @@ def get_args_parser():
     parser = argparse.ArgumentParser('Default Argument', add_help=False)
     # dataset parameters
     parser.add_argument('--path', type=str, default='')
-    parser.add_argument('--mode', default='logistic')
+    parser.add_argument('--mode', default='linear')
     parser.add_argument('--file', default='bim')
     parser.add_argument('--nosave', default=False, action='store_true')
     parser.add_argument('--save_dir', default='logs')
