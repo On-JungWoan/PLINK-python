@@ -15,7 +15,6 @@ def run_regression(model, row, df, y_data):
         m = model(y_data, X_data)
         res = m.fit()
         return res.pvalues[row]
-
     
 def createPvalue(args, df):
     '''
