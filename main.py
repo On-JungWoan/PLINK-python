@@ -18,7 +18,8 @@ def get_args_parser():
     parser.add_argument('--nosave', default=False, action='store_true')
     parser.add_argument('--save_dir', default='logs')
 
-    parser.add_argument('--num_col', default=[484256], nargs='+')
+    parser.add_argument('--full_dataset', default=False, action='store_true')
+    parser.add_argument('--num_col', default=[5000], nargs='+')
 
     return parser
 

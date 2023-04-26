@@ -1,6 +1,7 @@
-import pandas as pd
 import numpy as np
+import pandas as pd
 from tqdm import tqdm
+from . import resultStatistics
 
 def merge_col(origin_df, path, col_name):
     with open(path, 'r') as f:
@@ -27,14 +28,24 @@ def merge_col(origin_df, path, col_name):
 def make_genotype_by_bed(args, bed, id, snpid, num_col):
     print("\nMake data frame: in progress...\n")
     
-    # featureColumn = resultStatistics.txt_csv(f'dataset/{args.mode}_result_manhattan.txt', num_col)
-    
+    if args.full_dataset:
+        target = bed
+        col = snpid
+    else:
+        featureColumn = resultStatistics.txt_csv(f'dataset/{args.mode}_result_manhattan.txt', num_col)
+        inter_col = set(snpid).intersection(set(featureColumn))
+        
+        col_idx = []
+        col = []
+        for i_col in tqdm(inter_col):
+            tmp = snpid.index(i_col)
+            col_idx.append(tmp)
+            col.append(snpid[tmp])
+        target = bed[col_idx]
+
     df_item = {'fid' : id[0], 'iid': id[1]}
-    for idx, snp_binary in enumerate(tqdm(bed)):
-        if idx == 0 or idx==784255:
-            continue
-        # if snpid[idx] in featureColumn:
-        df_item[ snpid[idx] ] = np.nan_to_num(snp_binary).astype('int')
+    for idx, snp_binary in enumerate(tqdm(target)):
+        df_item[ col[idx] ] = np.nan_to_num(snp_binary).astype('int')    
 
     res_df = pd.DataFrame(df_item)
     print("\nMake data frame: Success!\n")

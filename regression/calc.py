@@ -26,9 +26,9 @@ def createPvalue(args, df):
 
     #### just debug ####
     res_df = pd.read_csv(f'dataset/{args.mode}_result_manhattan.txt',delimiter = "\t",header = None)
-    qc_cols = res_df[2].tolist()
-    qc_cols.append('y')
-    df = df[qc_cols]
+    # qc_cols = res_df[2].tolist()
+    # qc_cols.append('y')
+    # df = df[qc_cols]
     ###################
 
     #covar 파일 호출
@@ -62,9 +62,10 @@ def createPvalue(args, df):
 
     ans = res_df[5].tolist()
     res = np.isclose(ans, out, atol=1e-4)
+    print(len(res[res==False]))
+
+
     print()
-
-
     # print(['_' if b else idx for idx, b in enumerate(res)][:50]) # debug
 
 
