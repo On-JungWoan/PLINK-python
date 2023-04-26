@@ -1,8 +1,7 @@
-import matplotlib.pyplot as plt
 import statsmodels.api as sm
-from tqdm import tqdm
 import pandas as pd
 import numpy as np
+import pickle
 import sys
 
 #ADD + cov1 + cov2에 대해 회귀분석
@@ -60,10 +59,20 @@ def createPvalue(args, df):
     else:
         sys.exit(1)
 
-    ans = res_df[5].tolist()
+    res_df.index = res_df[2]
+    ans_df = res_df.loc[resId,:]
+
+    ans = ans_df[5].tolist()
     res = np.isclose(ans, out, atol=1e-4)
     print(len(res[res==False]))
 
+    not_matched_snp = []
+    for idx, b in enumerate(res):
+        if not b:
+            not_matched_snp.append(ans_df.iloc[idx,2])
+
+    with open('not_matched_snp.pkl', 'wb') as f:
+        pickle.dump(not_matched_snp, f)
 
     print()
     # print(['_' if b else idx for idx, b in enumerate(res)][:50]) # debug
@@ -71,3 +80,8 @@ def createPvalue(args, df):
 
     # with open('logs/res.pkl', 'wb') as f:
     #     pickle.dump(res,f)
+
+import pickle
+
+with open('not_matched_snp.pkl', 'rb') as f:
+    snp = pickle.load(f)
