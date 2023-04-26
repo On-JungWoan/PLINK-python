@@ -44,7 +44,9 @@ def make_genotype_by_bed(args, bed, id, snpid, num_col):
 
     df_item = {'fid' : id[0], 'iid': id[1]}
     for idx, snp_binary in enumerate(tqdm(target)):
-        df_item[ col[idx] ] = np.nan_to_num(snp_binary).astype('int')
+        snp_binary = snp_binary.astype(np.int64, copy=False)
+        snp_binary = np.where(snp_binary == -9223372036854775808, np.nan, snp_binary)
+        df_item[ snpid[idx] ] = snp_binary  
 
     res_df = pd.DataFrame(df_item)
     print("\nMake data frame: Success!\n")

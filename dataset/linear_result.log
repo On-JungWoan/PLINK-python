@@ -1,0 +1,29 @@
+PLINK v1.90b6.27 64-bit (10 Dec 2022)
+Options in effect:
+  --bfile data_snpqc_sex
+  --covar covar.txt
+  --covar-number 1,2
+  --linear
+  --out linear_result
+  --pheno linear_pheno.txt
+
+Hostname: DESKTOP-3GO7G9K
+Working directory: /mnt/c/Users/WOOO_SEOK/Desktop/snp/dataset
+Start time: Wed Apr 26 20:25:24 2023
+
+Random number seed: 1682508324
+12300 MB RAM detected; reserving 6150 MB for main workspace.
+623268 variants loaded from .bim file.
+100 people (50 males, 50 females) loaded from .fam.
+100 phenotype values present after --pheno.
+Using 1 thread (no multithreaded calculations invoked).
+--covar: 2 covariates loaded.
+Before main variant filters, 100 founders and 0 nonfounders present.
+Calculating allele frequencies... done.
+Total genotyping rate is 0.997263.
+623268 variants and 100 people pass filters and QC.
+Phenotype data is quantitative.
+Writing linear model association results to linear_result.assoc.linear ...
+done.
+
+End time: Wed Apr 26 20:25:40 2023
