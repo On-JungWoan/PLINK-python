@@ -10,7 +10,7 @@ def run_regression(model, row, df):
     X_data = df[['constant', row, 'sex', 'covar']]
     y_data = df['y']
     if df.shape[0] == 0:
-        return "NA"
+        return sys.exit(1)
     else:
         m = model(y_data, X_data)
         res = m.fit()
