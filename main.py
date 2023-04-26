@@ -5,7 +5,7 @@ from tqdm import tqdm
 import matplotlib.pyplot as plt
 import pickle
 
-from regression import run_model, createPvalue
+from regression import createPvalue
 # from utils.dataset import load_vcf
 from utils.postprocess import merge_col, make_genotype_by_bed
 
@@ -44,17 +44,6 @@ def main(args):
         train_test_df = make_xy(args, genotype_df)    
     
         createPvalue(args, train_test_df)
-
-        error = run_model(args, train_test_df, num)
-        res[num] = error
-        # end = time.time()
-        # sec = (end - start)
-        # total_time = str(datetime.timedelta(seconds=sec)).split(".")[0]
-        # print(f"Fit model: Success! total time is {total_time}")
-    
-    with open('logs/res.pkl', 'wb') as f:
-        pickle.dump(res,f)
-
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser('Arguments', parents=[get_args_parser()])
