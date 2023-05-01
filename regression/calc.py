@@ -1,4 +1,5 @@
 import statsmodels.api as sm
+from tqdm import tqdm
 import pandas as pd
 import numpy as np
 import pickle
@@ -30,6 +31,7 @@ def createPvalue(args, df):
 
     #### just debug ####
     res_df = pd.read_csv(f'dataset/{args.mode}_result_manhattan.txt',delimiter = "\t",header = None)
+    res_df.index = res_df[2]
     # qc_cols = res_df[2].tolist()
     # qc_cols.append('y')
     # df = df[qc_cols]
@@ -43,12 +45,15 @@ def createPvalue(args, df):
 
     # get list of resId
     resId = list(df.columns[0:-4])
+    # 임시 코드 -> 나중에 수정 #
+    resId = list(set(resId).intersection(set(res_df.index)))
+    ########################    
 
     # calc p-value
     out = []
     if args.mode == 'linear':
         df['y'] = df['y'].astype('float')
-        for id in resId:
+        for id in tqdm(resId):
             out.append(
                 run_regression(sm.OLS, id, df)
             )
@@ -58,7 +63,7 @@ def createPvalue(args, df):
         df['y'][df['y']==1] = 0
         df['y'][df['y']==2] = 1
 
-        for id in resId:
+        for id in tqdm(resId):
             out.append(
                 run_regression(sm.Logit, id, df)
             )
@@ -67,20 +72,19 @@ def createPvalue(args, df):
 
     res_df.index = res_df[2]
     ans_df = res_df.loc[resId,:]
-
     ans = ans_df[5].tolist()
     res = np.isclose(ans, out, atol=1e-4)
-    print(len(res[res==False]))
+    print(f"# of the not matched data : {len(res[res==False])}")
 
-    not_matched_snp = []
-    for idx, b in enumerate(res):
-        if not b:
-            not_matched_snp.append(ans_df.iloc[idx,2])
+    # not_matched_snp = []
+    # for idx, b in enumerate(res):
+    #     if not b:
+    #         not_matched_snp.append(ans_df.iloc[idx,2])
 
-    with open('not_matched_snp.pkl', 'wb') as f:
-        pickle.dump(not_matched_snp, f)
+    # with open('not_matched_snp.pkl', 'wb') as f:
+    #     pickle.dump(not_matched_snp, f)
 
-    print()
+    # print()
     # print(['_' if b else idx for idx, b in enumerate(res)][:50]) # debug
 
     # with open('logs/res.pkl', 'wb') as f:
