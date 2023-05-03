@@ -34,6 +34,8 @@ python main.py --mode Logistic
 
 ## 3. Arguments
 
+!! Need to modify it !!
+
 args | description
 :--: | :--:
 --path | Manually specify the project path.
