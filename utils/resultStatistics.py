@@ -39,6 +39,4 @@ def manhattan(args, df):
     # show the graph
     ax.show()
 
-    #저장
-    if args.save_plot == True:
-        plt.savefig(f'dataset/{args.mode}_manhattan.png')
+    plt.savefig(f'dataset/{args.mode}_manhattan.png')
