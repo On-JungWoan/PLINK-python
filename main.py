@@ -45,7 +45,7 @@ def main(args):
     
         result_df = createPvalue(args, train_test_df)
         
-        manhatten(args, result_df)
+        manhattan(args, result_df)
     
 if __name__ == '__main__':
     parser = argparse.ArgumentParser('Arguments', parents=[get_args_parser()])
