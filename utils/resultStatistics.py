@@ -1,14 +1,15 @@
-import pandas as pd
+import os
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 
 #결과를 기반으로 맨해튼플롯 작성
 
-def manhattan(args, df):
+def manhattan(args, df, num_col):
     #1. 유전형 이름 2.pvalue, 3.염색체이름
-    df2 = pd.DataFrame({'SNP':df['SNP'],'P':df['P'],'CHR':df['CHR']})
+    df2 = pd.DataFrame({'SNP':df['snp'],'P':df['p'],'CHR':df['chrom']})
     # -log_10(pvalue)
-    df2['minuslog10pvalue'] = -np.log10(df.P.astype('float'))
+    df2['minuslog10pvalue'] = -np.log10(df['p'].astype('float'))
     df2.CHR = df2.CHR.astype('int')
     df2 = df2.sort_values('CHR')
     print(df2)
@@ -36,7 +37,10 @@ def manhattan(args, df):
     # x axis label
     ax.set_xlabel('CHR')
 
-    # show the graph
-    ax.show()
+    file_name = f'{args.mode}_manhattan'
 
-    plt.savefig(f'dataset/{args.mode}_manhattan.png')
+    if not args.full_dataset:
+        file_name += f'_{num_col}'
+
+    save_path = os.path.join(args.save_dir, file_name+'.png')
+    plt.savefig(save_path)
