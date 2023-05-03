@@ -33,15 +33,11 @@ def make_xy(args, df):
 
 def main(args):
     bim, fam, bed = read_plink(join(args.path, 'dataset/data')) #bim, fam, bed
-    id = [fam['fid'].tolist(), fam['iid'].tolist()]
-    snpid = bim['snp'].tolist()
+    full_sample_id = [fam['fid'].tolist(), fam['iid'].tolist()]
+    full_snpid = bim['snp'].tolist()
 
-    print("Fit model: in progress...")
-    # start = time.time()
-
-    res = {}
     for num in tqdm(args.num_col):
-        genotype_df = make_genotype_by_bed(args, bed.compute(), id, snpid, num)
+        genotype_df = make_genotype_by_bed(args, bed.compute(), full_sample_id, full_snpid, num)
         train_test_df = make_xy(args, genotype_df)    
     
         createPvalue(args, train_test_df)
