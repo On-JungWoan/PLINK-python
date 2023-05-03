@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 #결과를 기반으로 맨해튼플롯 작성
 
-def manhattan(df):
+def manhattan(args, df):
     #1. 유전형 이름 2.pvalue, 3.염색체이름
     df2 = pd.DataFrame({'SNP':df['SNP'],'P':df['P'],'CHR':df['CHR']})
     # -log_10(pvalue)
@@ -37,3 +37,8 @@ def manhattan(df):
     ax.set_xlabel('CHR')
 
     # show the graph
+    ax.show()
+
+    #저장
+    if args.save_plot == True:
+        plt.savefig(f'dataset/{args.mode}_manhattan.png')

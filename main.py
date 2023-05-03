@@ -44,9 +44,8 @@ def main(args):
         train_test_df = make_xy(args, genotype_df)    
     
         result_df = createPvalue(args, train_test_df)
-        #우-추
-        if args.save_plot == True:
-            manhatten(result_df)
+        
+        manhatten(args, result_df)
     
 if __name__ == '__main__':
     parser = argparse.ArgumentParser('Arguments', parents=[get_args_parser()])
