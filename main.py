@@ -3,13 +3,13 @@ from os.path import join
 from pandas_plink import read_plink, read_plink1_bin, get_data_folder
 from tqdm import tqdm
 import matplotlib.pyplot as plt
-import pandas as pd
 import pickle
-import numpy as np
 
 from regression import createPvalue
 # from utils.dataset import load_vcf
 from utils.postprocess import merge_col, make_genotype_by_bed
+
+from utils.resultStatistics import manhatten
 
 def get_args_parser():
     parser = argparse.ArgumentParser('Default Argument', add_help=False)
@@ -40,8 +40,8 @@ def main(args):
     full_snpid = bim['snp'].tolist()
 
     for num in tqdm(args.num_col):
-        vcf_df = make_genotype_by_bed(bed, args.full_dataset, num, full_snpid, full_sample_id)
-        train_test_df = make_xy(args, vcf_df)
+        genotype_df = make_genotype_by_bed(args, bed.compute(), full_sample_id, full_snpid, num)
+        train_test_df = make_xy(args, genotype_df)    
     
         result_df = createPvalue(args, train_test_df)
         
