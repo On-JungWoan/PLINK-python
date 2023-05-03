@@ -11,20 +11,24 @@ from utils.resultStatistics import manhattan
 from utils.postprocess import merge_col, make_genotype_by_bed
 from pandas_plink import read_plink, read_plink1_bin, get_data_folder
 
+
 def get_args_parser():
     parser = argparse.ArgumentParser('Default Argument', add_help=False)
+
     # dataset parameters
     parser.add_argument('--data_path', type=str, default='dataset')
-    parser.add_argument('--mode', default='logistic')
-    parser.add_argument('--file', default='bim')
-    parser.add_argument('--nosave', default=False, action='store_true')
-    parser.add_argument('--save_dir', default='output')
-
     parser.add_argument('--full_dataset', default=False, action='store_true')
     parser.add_argument('--num_col', default=[5000, 10000, 15000], nargs='+')
-    #우-추
-    parser.add_argument('--manhattan', default=True, action='store_true')
+    
+    # regression
+    parser.add_argument('--mode', default='logistic')
+
+    # manhattan
+    parser.add_argument('--save_dir', default='output')
+    parser.add_argument('--no_manhattan', default=False, action='store_true')
+
     return parser
+
 
 def make_xy(args, df):
     # pheno
@@ -55,8 +59,12 @@ def main(args):
     
         result_df = createPvalue(args, train_test_df, bim)
         
-        if args.manhattan:
+        if not args.no_manhattan:
             manhattan(args, result_df, num)
+
+        if args.full_dataset:
+            break
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser('Arguments', parents=[get_args_parser()])
