@@ -11,10 +11,10 @@ def run_regression(model, row, df):
     X_data = df[['constant', row, 'sex', 'covar']]
     y_data = df['y']
     if df.shape[0] == 0:
-        return sys.exit(1)
+        return np.nan
     else:
         m = model(y_data, X_data)
-        res = m.fit()
+        res = m.fit(disp=0, warn_convergence=False)
         return res.pvalues[row]
     
 def createPvalue(args, df):
@@ -49,6 +49,8 @@ def createPvalue(args, df):
     resId = list(set(resId).intersection(set(res_df.index)))
     ########################    
 
+    import warnings
+    warnings.filterwarnings("ignore", category=RuntimeWarning)
     # calc p-value
     out = []
     if args.mode == 'linear':

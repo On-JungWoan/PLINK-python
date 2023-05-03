@@ -2,28 +2,10 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-# plink 실행 시 결과로 출력된 result.txt파일을 csv형식으로 변환
-#결과파일 linear_result_manhattan.txt, logistic_result_manhattan.txt
-def txt_csv(result, num):
-    with open(result, 'r') as f:
-        lines = f.readlines()
-    # 각 행을 데이터프레임의 열로 변환
-    data = pd.DataFrame([line.strip().split() for line in lines])
-    result = select_feature(data, num)
-    return result
-
-#pvalue를 기반으로 독립변수 개수를 5, 10, 20, 30 으로 축소
-def select_feature(df, num):
-    # input : plink 결과 데이터 output: 선택된 변수set
-    # 데이터프레임 출력
-    df.columns = ["CHR","POS","SNP","ALT","STAT","P"]
-    df=df.drop(df[df['P'] == "NA"].index,axis = 0)
-    manhattan(df)
-    train_feature = df.sort_values("P",ascending = True).iloc[0:num,:]['SNP']
-    return list(train_feature)
-
 #결과를 기반으로 맨해튼플롯 작성
-def manhattan(df):
+
+def manhattan(args, df):
+    #1. 유전형 이름 2.pvalue, 3.염색체이름
     df2 = pd.DataFrame({'SNP':df['SNP'],'P':df['P'],'CHR':df['CHR']})
     # -log_10(pvalue)
     df2['minuslog10pvalue'] = -np.log10(df.P.astype('float'))
@@ -55,3 +37,8 @@ def manhattan(df):
     ax.set_xlabel('CHR')
 
     # show the graph
+    ax.show()
+
+    #저장
+    if args.save_plot == True:
+        plt.savefig(f'dataset/{args.mode}_manhattan.png')
