@@ -25,29 +25,23 @@ def merge_col(origin_df, path, col_name):
     return res_df
 
 
-def make_genotype_by_bed(args, bed, id, snpid, num_col):
-    print("\nMake data frame: in progress...\n")
-    
-    if args.full_dataset:
-        target = bed
-        col = snpid
-    else:
-        featureColumn = resultStatistics.txt_csv(f'dataset/{args.mode}_result_manhattan.txt', num_col)
-        
-        col_idx = []
-        col = []
-        for i_col in tqdm(featureColumn):
-            tmp = snpid.index(i_col)
-            col_idx.append(tmp)
-            col.append(i_col)
-        target = bed[col_idx]
+def make_genotype_by_bed(bed, full_dataset, num_col, full_snpid, full_sample_id):
+    # make vcf format dataframe
+    print("\n[Make data frame] in progress...")
+    vcf_df = pd.DataFrame(
+        bed.compute().transpose(1,0),
+        index=full_sample_id[0],
+        columns=full_snpid
+    )
+    vcf_df['fid'] = full_sample_id[0]
+    vcf_df['iid'] = full_sample_id[1]
 
-    df_item = {'fid' : id[0], 'iid': id[1]}
-    for idx, snp_binary in enumerate(tqdm(target)):
-        snp_binary = snp_binary.astype(np.int64, copy=False)
-        snp_binary = np.where(snp_binary == -9223372036854775808, np.nan, snp_binary)
-        df_item[ snpid[idx] ] = snp_binary  
+    # pre-processing
+    vcf_df.replace([-9223372036854775808],[np.nan],inplace=True)
+    print("[Make data frame] Success!")
 
-    res_df = pd.DataFrame(df_item)
-    print("\nMake data frame: Success!\n")
-    return res_df
+    if not full_dataset:
+        col = np.random.choice(full_snpid, num_col)
+        return vcf_df[[*col, 'fid', 'iid']]
+
+    return vcf_df

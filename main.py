@@ -1,15 +1,14 @@
-import argparse
-from os.path import join
-from pandas_plink import read_plink, read_plink1_bin, get_data_folder
-from tqdm import tqdm
-import matplotlib.pyplot as plt
 import pickle
+import argparse
+from tqdm import tqdm
+from os.path import join
+import matplotlib.pyplot as plt
 
 from regression import createPvalue
 # from utils.dataset import load_vcf
+from utils.resultStatistics import manhattan
 from utils.postprocess import merge_col, make_genotype_by_bed
-
-from utils.resultStatistics import manhatten
+from pandas_plink import read_plink, read_plink1_bin, get_data_folder
 
 def get_args_parser():
     parser = argparse.ArgumentParser('Default Argument', add_help=False)
@@ -21,9 +20,9 @@ def get_args_parser():
     parser.add_argument('--save_dir', default='logs')
 
     parser.add_argument('--full_dataset', default=False, action='store_true')
-    parser.add_argument('--num_col', default=[5000], nargs='+')
+    parser.add_argument('--num_col', default=[5000, 10000, 15000], nargs='+')
     #우-추
-    parser.add_argument('--save_plot', default=True)
+    parser.add_argument('--manhattan', default=False, action='store_true')
     return parser
 
 def make_xy(args, df):
@@ -40,13 +39,15 @@ def main(args):
     full_snpid = bim['snp'].tolist()
 
     for num in tqdm(args.num_col):
-        genotype_df = make_genotype_by_bed(args, bed.compute(), full_sample_id, full_snpid, num)
-        train_test_df = make_xy(args, genotype_df)    
+        vcf_df = make_genotype_by_bed(bed, args.full_dataset, num, full_snpid, full_sample_id)
+        train_test_df = make_xy(args, vcf_df)
     
         result_df = createPvalue(args, train_test_df)
         
-        manhattan(args, result_df)
-    
+        if args.manhattan:
+            manhattan(args, result_df)
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser('Arguments', parents=[get_args_parser()])
     args = parser.parse_args()
