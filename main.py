@@ -21,7 +21,7 @@ def get_args_parser():
     parser.add_argument('--save_dir', default='logs')
 
     parser.add_argument('--full_dataset', default=False, action='store_true')
-    parser.add_argument('--num_col', default=[5000], nargs='+')
+    parser.add_argument('--num_col', default=[5000, 10000, 15000], nargs='+')
     #우-추
     parser.add_argument('--save_plot', default=True)
     return parser
@@ -40,13 +40,13 @@ def main(args):
     full_snpid = bim['snp'].tolist()
 
     for num in tqdm(args.num_col):
-        genotype_df = make_genotype_by_bed(args, bed.compute(), full_sample_id, full_snpid, num)
-        train_test_df = make_xy(args, genotype_df)    
+        vcf_df = make_genotype_by_bed(bed, args.full_dataset, num, full_snpid, full_sample_id)
+        train_test_df = make_xy(args, vcf_df)
     
         result_df = createPvalue(args, train_test_df)
         
         manhatten(args, result_df)
-    
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser('Arguments', parents=[get_args_parser()])
     args = parser.parse_args()
