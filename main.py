@@ -9,6 +9,8 @@ from regression import createPvalue
 # from utils.dataset import load_vcf
 from utils.postprocess import merge_col, make_genotype_by_bed
 
+from utils.resultStatistics import manhatten
+
 def get_args_parser():
     parser = argparse.ArgumentParser('Default Argument', add_help=False)
     # dataset parameters
@@ -20,7 +22,8 @@ def get_args_parser():
 
     parser.add_argument('--full_dataset', default=False, action='store_true')
     parser.add_argument('--num_col', default=[5000], nargs='+')
-
+    #우-추
+    parser.add_argument('--save_plot', default=True)
     return parser
 
 def make_xy(args, df):
@@ -40,8 +43,11 @@ def main(args):
         genotype_df = make_genotype_by_bed(args, bed.compute(), full_sample_id, full_snpid, num)
         train_test_df = make_xy(args, genotype_df)    
     
-        createPvalue(args, train_test_df)
-
+        result_df = createPvalue(args, train_test_df)
+        #우-추
+        if args.save_plot == True:
+            manhatten(result_df)
+    
 if __name__ == '__main__':
     parser = argparse.ArgumentParser('Arguments', parents=[get_args_parser()])
     args = parser.parse_args()
