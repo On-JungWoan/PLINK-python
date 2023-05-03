@@ -22,7 +22,8 @@ def get_args_parser():
 
     parser.add_argument('--full_dataset', default=False, action='store_true')
     parser.add_argument('--num_col', default=[5000, 10000, 15000], nargs='+')
-
+    #우-추
+    parser.add_argument('--save_plot', default=True)
     return parser
 
 def make_xy(args, df):
@@ -42,9 +43,9 @@ def main(args):
         vcf_df = make_genotype_by_bed(bed, args.full_dataset, num, full_snpid, full_sample_id)
         train_test_df = make_xy(args, vcf_df)
     
-        createPvalue(args, train_test_df)
-
-        # test
+        result_df = createPvalue(args, train_test_df)
+        
+        manhatten(args, result_df)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser('Arguments', parents=[get_args_parser()])
