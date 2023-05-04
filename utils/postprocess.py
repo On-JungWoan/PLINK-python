@@ -36,8 +36,6 @@ def make_genotype_by_bed(bed, full_dataset, num_col, full_snpid, full_sample_id)
     vcf_df['fid'] = full_sample_id[0]
     vcf_df['iid'] = full_sample_id[1]
 
-    # pre-processing
-    vcf_df.replace([-9223372036854775808],[np.nan],inplace=True)
     print("[Make data frame] Success!")
 
     if not full_dataset:

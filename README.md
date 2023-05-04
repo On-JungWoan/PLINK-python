@@ -1,10 +1,16 @@
 # SNP Regression
 ## 1. Installation
 
-```
-git clone https://github.com/On-JungWoan/snp.git
+- **conda**
 
-cd snp
+```
+git clone https://github.com/On-JungWoan/PLINK-python.git
+
+cd PLINK-python
+
+conda create -n plink-env python==3.9
+
+conda activate plink-env
 
 pip install -r requirements.txt
 ```
@@ -27,6 +33,8 @@ python main.py --mode Logistic
 <br>
 
 ## 3. Arguments
+
+!! Need to modify it !!
 
 args | description
 :--: | :--:
