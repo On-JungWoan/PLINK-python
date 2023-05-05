@@ -12,18 +12,11 @@ import statsmodels.api as sm
 def run_regression(model, row, df):
     X_data = df[['constant', row, 'sex', 'covar']]
     y_data = df['y']
-    if df.empty:
-        return np.nan
-    else:
-        #################################################
-        #####         이 부분 QC 구현되면 지우기         #####
-        #################################################
-        try:
-            m = model(y_data, X_data)
-            res = m.fit(disp=0, warn_convergence=False)
-            return res.pvalues[row]
-        except:
-            return 0
+       
+    m = model(y_data, X_data)
+    res = m.fit(disp=0, warn_convergence=False, method='bfgs')
+    return res.pvalues[row]
+        
     
 def createPvalue(args, df, bim):
     '''
@@ -45,7 +38,7 @@ def createPvalue(args, df, bim):
 
     # get list of resId
     resId = list(df.columns[0:-4])
-
+    print(len(resId))
     # calc p-value
     out = []
     if args.mode == 'linear':

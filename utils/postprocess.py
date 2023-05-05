@@ -39,7 +39,7 @@ def make_genotype_by_bed(bed, full_dataset, num_col, full_snpid, full_sample_id)
     print("[Make data frame] Success!")
 
     if not full_dataset:
-        col = np.random.choice(full_snpid, num_col)
+        col = np.random.choice(full_snpid, num_col, replace = False)
         return vcf_df[[*col, 'fid', 'iid']]
 
     return vcf_df
