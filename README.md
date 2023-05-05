@@ -41,7 +41,12 @@ args | description
 --path | Manually specify the project path.
 --mode | Specify the regression mode(linear or logistic).
 --file | Specify the file format to be used.(bim or fam).
---nosave | If this argument is used, the result will not be saved.
+--nosave | If this argument is used, the result will not be saved
+--save_dir |
+--full_dataset | If this argument is true, dataset made by all dataset. 
+--num_col | Option of full_dataset == false, selection of dataset's size.
+--save_plot | If this argument is True, manhattan plot will be saved
+--
 
 <details>
 
@@ -53,8 +58,9 @@ python main.py \
     --mode linear (or logistic) \
     --file bim (or fam) \
     --nosave
+    --save_plot True \
 ```
 
 </details>
 
-.
+
