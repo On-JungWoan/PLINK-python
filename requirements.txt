@@ -2,3 +2,4 @@ statsmodels
 pandas_plink 
 tqdm
 matplotlib
+scipy

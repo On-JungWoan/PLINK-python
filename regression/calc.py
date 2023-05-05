@@ -38,7 +38,7 @@ def createPvalue(args, df, bim):
 
     # get list of resId
     resId = list(df.columns[0:-4])
-    print(len(resId))
+    
     # calc p-value
     out = []
     if args.mode == 'linear':
