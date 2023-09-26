@@ -36,7 +36,6 @@ def manhattan(args, df, num_col):
 
     # x axis label
     ax.set_xlabel('CHR')
-    plt.show()
 
     file_name = f'{args.mode}_manhattan'
 
@@ -45,3 +44,4 @@ def manhattan(args, df, num_col):
 
     save_path = os.path.join(args.save_dir, file_name+'.png')
     plt.savefig(save_path)
+    plt.show()
