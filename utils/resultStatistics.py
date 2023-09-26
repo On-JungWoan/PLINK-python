@@ -36,6 +36,7 @@ def manhattan(args, df, num_col):
 
     # x axis label
     ax.set_xlabel('CHR')
+    plt.show()
 
     file_name = f'{args.mode}_manhattan'
 

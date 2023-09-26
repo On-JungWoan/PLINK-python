@@ -1,9 +1,11 @@
 from scipy.stats import chi2
 def qc_process(df):
+    print('[Quality control] in progress...')
     df = df.drop(df.drop(['fid','iid'],axis=1).apply(qc_maf, axis=0).dropna().to_list(), axis=1)
     df = df.drop(df.drop(['fid','iid'],axis=1).apply(qc_geno, axis=0).dropna().to_list(), axis=1)
     df = df.drop(df.drop(['fid','iid'],axis=1).apply(qc_hwe, axis=0).dropna().to_list(), axis=1)
     print(df)
+    print('[Quality control] Success!')
     return df
 
 def qc_maf(col):

@@ -1,3 +1,4 @@
 .pyc
 test*
+.vscode/
 *__pycache__*

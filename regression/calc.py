@@ -14,7 +14,8 @@ def run_regression(model, row, df):
     y_data = df['y']
        
     m = model(y_data, X_data)
-    res = m.fit(disp=0, warn_convergence=False, method='bfgs')
+    # res = m.fit(disp=0, warn_convergence=False, method='bfgs')
+    res = m.fit(disp=0, warn_convergence=False, method='pinv')
     return res.pvalues[row]
         
     
